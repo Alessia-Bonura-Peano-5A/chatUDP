@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package chatudpclient;
+package chatudp;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -15,18 +15,20 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author Prof Matteo Palitto 
+ * @author alessia
  */
-public class SendUserInputToServer implements Runnable {
+public class SendUserInputToServer implements Runnable{
+    
     DatagramSocket socket;
     InetAddress address;
     int UDP_port;
-    
+
     SendUserInputToServer(DatagramSocket socket, InetAddress address, int UDP_port) {
         this.socket = socket;
         this.address = address;
         this.UDP_port = UDP_port;
     }
+
     /**
      *
      */
@@ -37,6 +39,7 @@ public class SendUserInputToServer implements Runnable {
         String messaggio;
         Scanner tastiera = new Scanner(System.in);
         DatagramPacket userDatagram;
+        
 
         try {
             System.out.print("> ");
@@ -55,9 +58,8 @@ public class SendUserInputToServer implements Runnable {
                 socket.send(userDatagram);
             } while (messaggio.compareTo("quit") != 0); //se utente digita quit il tread termina
         } catch (IOException ex) {
-            Logger.getLogger(ChatUDPclient.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CHATudp.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
-
 }
