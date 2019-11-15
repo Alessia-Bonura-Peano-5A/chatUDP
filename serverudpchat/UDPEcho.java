@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package serverudpchat;
+package serverudp;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -12,17 +12,16 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  *
- * @author Prof Matteo Palitto
+ * @author alessia
  */
 
-//utilizzo la classe Clients per memorizzare indirizzo e porta dei clients che si collegano al server
-//questo poi mi servira' per poter inviare i messaggi ricevuti da un client a tutti i client connessi
-class Clients {
+    class Clients {
     InetAddress addr;
     int port;
     
@@ -31,7 +30,6 @@ class Clients {
         this.port = port;
     }
 }
-
 //modifico la classe UDPecho usata dal server echo per uso con la chat
 public class UDPEcho implements Runnable {
 
@@ -45,6 +43,9 @@ public class UDPEcho implements Runnable {
     }
 
     public void run() {
+        //Dichiarare un LinkedList di stringhe per la memorizzazionedegli ultimi 10 messaggi della chat
+        LinkedList <String> ultimiMess= new LinkedList();
+        
         DatagramPacket answer; //datagram usato per creare il pacchetto di risposta
         byte[] buffer = new byte[8192]; //buffer per contenere il messaggio ricevuto o da inviare
         // creo un un datagramma UDP usando il buffer come contenitore per i messaggi
@@ -71,11 +72,22 @@ public class UDPEcho implements Runnable {
                 }
                 System.out.println(clients);
                 message = new String(request.getData(), 0, request.getLength(), "ISO-8859-1");
-                if(message == "quit") {
+                if(message.contains("quit")==true) {
                     //client si e' rimosso da chat, lo rimuovo da lista dei client connessi
                     clients.remove(clientID);
                 }
 
+                //Se la LinkedList contiene meno di 10 messaggi, aggiungo il nuovo messaggio
+                if(ultimiMess.size()<10){
+                    
+                    ultimiMess.add(message);
+                    
+                }else{
+                    //Se la LinkedList contiene già 10 messaggi, rimuovo il primo messaggio inserito ed aggiungo quello nuovo
+                    ultimiMess.removeLast();
+                    ultimiMess.remove(message);
+                    
+                }
                 //invio il messaggio ricevuto a tutti i client connessi al server
                 for(Clients clnt: clients.values()) {
                     // costruisco il datagram di risposta usando il messaggio appena ricevuto e inviandolo a ogni client connesso
@@ -88,3 +100,4 @@ public class UDPEcho implements Runnable {
         }
     }
 }
+   
